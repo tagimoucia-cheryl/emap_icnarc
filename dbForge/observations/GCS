@@ -1,0 +1,113 @@
+
+-- TRYING TO FIND GCS
+-- lists distinct visit observation id where value_as_real includes 3-15 
+
+SELECT 
+  distinct visit_observation_type_id
+  FROM 
+  star.visit_observation
+  WHERE 
+  value_as_real >= 3 AND
+  value_as_real <= 15;
+  
+-- exploring minimum and maximum of ranges. IDENTIFIED TWO visit_observation_type_id where the min and max of value_as_real were 3 and 15 respectively
+
+WITH distinct_id AS
+(SELECT 
+  distinct visit_observation_type_id
+  FROM 
+  star.visit_observation
+  WHERE 
+  value_as_real >= 3 AND
+  value_as_real <= 15),
+  mdi AS
+  (SELECT
+  di.visit_observation_type_id,
+  MIN(vo.value_as_real) as min,
+  MAX(vo.value_as_real) as max
+  FROM distinct_id di
+  LEFT JOIN
+  star.visit_observation vo
+  ON 
+  di.visit_observation_type_id = vo.visit_observation_type_id
+GROUP BY
+di.visit_observation_type_id)
+SELECT 
+*
+FROM 
+mdi
+WHERE
+mdi.min >=3 AND
+mdi.max <= 15;
+
+--both GCS visit_observation_type have same id_in_application;401001. Both just have differing source systems; EPIC/caboodle
+SELECT 
+visit_observation_type,
+  id_in_application,
+  source_system
+  FROM
+  star.visit_observation_type
+  WHERE 
+  visit_observation_type = 57956151
+  OR
+  visit_observation_type = 198594466
+
+--exporting GCS data
+
+SELECT
+star.visit_observation_type.visit_observation_type,
+  star.visit_observation_type.id_in_application,
+  star.visit_observation_type.name_in_application,
+  star.visit_observation_type.source_system
+  FROM
+  star.visit_observation_type
+  WHERE
+  visit_observation_type = 56623551
+  OR
+  visit_observation_type = 250354858
+
+
+ WITH loc AS 
+(SELECT
+  SPLIT_PART(loc.location_string,'^',1) as location_split,
+  loc.location_string,
+  loc.location_id,
+lv.hospital_visit_id,
+  lv.admission_time,
+  lv.discharge_time
+FROM 
+  star.location loc
+  JOIN
+  star.location_visit lv
+  ON 
+  loc.location_id = lv.location_id
+  ),
+  all_obs AS
+(select
+  -- observation details
+   ob.visit_observation_id
+  ,ob.hospital_visit_id
+  ,ob.observation_datetime
+  ,ob.unit 
+  ,ob.value_as_real
+  ,ob.value_as_text
+  ,ob.visit_observation_type_id
+  ,ot.id_in_application
+from
+  star.visit_observation ob
+-- observation look-up
+left join
+  star.visit_observation_type ot
+  on ob.visit_observation_type_id = ot.visit_observation_type
+where
+ot.id_in_application =
+  '401001')
+SELECT
+loc.*,
+  all_obs.*
+  FROM
+  loc
+  LEFT JOIN all_obs
+  ON loc.hospital_visit_id = all_obs.hospital_visit_id
+  WHERE
+  loc.location_split ~ '^(T03|WSCC|SINQ|MINQ|P03CV|T07CV)';
