@@ -1,0 +1,86 @@
+#SETUP
+
+library(tidyverse)
+library(lubridate)
+
+x <- file.choose()
+
+cvs_resp <- read.csv(x)
+
+View(cvs_resp)
+
+#subset HR data frame 
+#LOOKUP in emap mapping: Heart rate = 8 (https://docs.google.com/spreadsheets
+#/d/1k5DqkOfUkPZnYaNRgM-GrM7OC2S4S2alIiyTC8-OqCw/edit#gid=1661666003)
+
+HR <-
+  subset(cvs_resp, id_in_application == 8)
+
+View(HR)
+
+write.csv(HR, file = 'HR.csv')
+
+#Loading HR.csv
+HR_file <- file.choose()
+HR <- read.csv(HR_file)
+
+HRw <- HR #create working HR df
+View(HRw)
+
+#Subselecting only first 24 hours
+
+colnames(HRw)
+
+
+HRw$at <- HRw$admission_time
+
+HRw$at <- substr(
+  HRw$admission_time,1,19
+)
+
+HRw$at <- strptime(
+  HRw$at, "%d/%m/%Y %T", tz = "GMT"
+) #new at column for admission datetime in POSIXlt format
+
+HRw$at_24 <- substr(
+  HRw$admission_time,1,19
+)
+
+HRw$at_24 <- strptime(
+  HRw$at_24, "%d/%m/%Y %T", tz = "GMT"
+)
+
+HRw$at_24 <- HRw$at_24 +
+  dhours(24)#new at column for admission datetime + 24hrs in POSIXlt format
+
+
+HRw$ot <- HRw$observation_datetime
+
+HRw$ot <- substr(
+  HRw$observation_datetime,1,19
+)
+
+HRw$ot <- strptime(
+  HRw$ot, "%d/%m/%Y %T", tz = "GMT"
+) #new at column for result_last_modified datetime in POSIXlt format
+
+#filtering out non- first 24 hour admission results
+
+HRw24 <- HRw %>%
+  filter(HRw$ot > HRw$at, HRw$ot < HRw$at_24)
+
+#tibbles for desired result
+
+colnames(HRw24)
+
+min_HR<-
+HRw24 %>%
+  dplyr::group_by(hospital_visit_id) %>%
+  dplyr::summarise(min_HR = min(value_as_real)) #table with min HR
+#for each specific hospital_visit(in pre-requisite ITU split locale)
+
+
+write.csv(min_HR, 'min_HR.csv')
+
+
+str(HRw24$value_as_real)
