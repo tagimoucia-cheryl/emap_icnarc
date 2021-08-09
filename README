@@ -1,10 +1,10 @@
 ## Repository to hold code for:
 
-* **retrieving RAW icnarc physiology variables from EMAP**
-* EMAP retrieval with Postgress SQL in db Forge
-* using star schema
+- Retrieving RAW icnarc physiology variables from EMAP
+  - EMAP retrieval with Postgress SQL in db Forge
+  - Using star schema
 
-* **cleaning RAW to isolate icnarc physiology variables needed:**
-* cleaning with R
-* per patient
-* per admission
+- Cleaning RAW to isolate icnarc physiology variables needed:**
+  - cleaning with R
+  - per patient
+  - per admission
