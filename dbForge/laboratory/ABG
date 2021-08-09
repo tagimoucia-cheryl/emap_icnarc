@@ -1,3 +1,5 @@
+-- values for pH, Fio2, pO2 and Sao2 (to differentiate between venous and arterial gas values further down pipeline)
+
 WITH loc AS 
 (SELECT
   SPLIT_PART(loc.location_string,'^',1) as location_split,
@@ -56,6 +58,7 @@ WHERE
   ('141462256' -- po2
   ,'141462295' --FIO2
   ,'141462250' -- pH
+  ,'141462286' --sO2
   ))
   SELECT
 loc.*,
