@@ -1,0 +1,107 @@
+getwd()
+
+setWd(
+  "\\\\UCLCMDDPRAFSS21/Home/cachary1/Documents")
+
+install.packages("tidyverse")
+install.packages("hablar")
+
+
+library(tidyverse)
+library(hablar)
+library (lubridate)
+
+
+setwd(
+  "\\\\UCLCMDDPRAFSS21/Home/cachary1/Documents/R_icnarc/exported_star_csv"
+)
+
+ABG_choose <- file.choose()
+
+?read.csv
+
+ABG <- read.csv(ABG_choose)
+
+View(ABG)
+
+ABG_working <- ABG #to start working on modifying values
+
+#on review no data in datetime - check definitely no values
+max(ABG$request_datetime)
+min(ABG$request_datetime)
+
+colnames(ABG)
+
+#check +24 works on datetime
+
+c_at <- (ABG$admission_time [1]) 
++ 24
+
+c_at
+ABG$admission_time[1]
+
+
+class(ABG$admission_time)
+
+#not an option as.numeric makes all dates NA
+t_at <- as.numeric(ABG$admission_time)
+
+View(t_at)
+
+#trial extracting characters
+
+at_1 <- ABG$admission_time[1]
+
+at_1c <- substr(at_1,1,10)
+at_1c # works, subselects date
+at_1cn <- as.numeric(at_1c) #DOES NOT work, makes date NA
+
+class(at_1)
+
+at_1t <- retype(at_1)#gives just the date
+
+at_1
+at_1t
+class(at_1)
+at_1tt <- as.numeric(at_1t)
+at_1tt# DOES NOT WORK. Gives '-715005'
+
+#Will try loading data differently, used ?read.csv
+
+ABG2 <- read.csv(ABG_choose, stringsAsFactors = FALSE)
+
+class(ABG2$admission_time)
+
+abg2_at2 <- as.numeric(ABG2$admission_time)
+
+abg2_at2[2] #still doesnt work
+
+#other commands
+
+?sapply
+
+?apply
+
+abg2_at3 <- ABG2$admission_time
+
+apply(abg2_at3,2,as.numeric)#doesn't work as 
+
+abg2_at3
+
+sapply(ABG2, class)
+
+abg2_admyr <- substr(ABG2$admission_time,1,10)
+
+abg2_admyr_test <- as.numeric_version(abg2_admyr)
+
+abg2_admyr #shows year formatts with dd/mm/yy
+
+admyr <- rapply(abg2_admyr,"/","-")
+
+?rapply
+
+y-r <- gsub("/","-",abg2_admyr)
+
+test <- as.Date.numeric(ABG2$admission_time,"%d-%m-%y")
+
+?as.Date.numeric
