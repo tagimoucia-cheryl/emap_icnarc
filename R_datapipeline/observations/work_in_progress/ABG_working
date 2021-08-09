@@ -1,0 +1,135 @@
+View(ABG_working) #see ABG_scribble.R for details
+
+
+#change "null" values to "NA
+ABG_working[ABG_working == "null"] <- NA
+
+#Create column with admission time in POSIXlt format, column with admission +
+#24 hours, and column result_last_modified_time in POSIXlt format too
+ABGw <- ABG_working
+View(ABGw)
+
+ABGw$at <- ABGw$admission_time
+
+ABGw$at <- substr(
+  ABGw$admission_time,1,19
+)
+
+ABGw$at <- strptime(
+  ABGw$at, "%d/%m/%Y %T", tz = "GMT"
+) #new at column for admission datetime in POSIXlt format
+
+ABGw$at_24 <- substr(
+  ABGw$admission_time,1,19
+)
+
+ABGw$at_24 <- strptime(
+  ABGw$at_24, "%d/%m/%Y %T", tz = "GMT"
+)
+
+ABGw$at_24 <- ABGw$at_24 +
+  dhours(24)#new at column for admission datetime + 24hrs in POSIXlt format
+
+
+ABGw$rt <- ABGw$result_last_modified_time
+
+ABGw$rt <- substr(
+  ABGw$result_last_modified_time,1,19
+)
+
+ABGw$rt <- strptime(
+  ABGw$rt, "%d/%m/%Y %T", tz = "GMT"
+) #new at column for result_last_modified datetime in POSIXlt format
+
+#filtering out non- first 24 hour admission results
+
+ABGw24 <- ABGw %>%
+  filter(ABGw$rt > ABGw$at, ABGw$rt < ABGw$at_24)
+
+View(ABGw24)
+
+#creating working data for ABG 24 hours 
+
+ABGwd24 <- ABGw24 %>%
+  select (hospital_visit_id,
+          test_lab_code,
+          lab_result_id,
+          units,
+          value_as_real,
+          lab_sample_id,
+          at,
+          at_24,
+          rt)
+
+#trying to identify minimum in each hospital visit
+
+ABGwd24 %>%
+  group_by(hospital_visit_id) %>%
+  summarize (minimum = min(value_as_real))
+# this gives tibble of 14x 2
+
+
+write.csv(ABGw24, file = 'ABGw24.csv')
+write.csv(ABG_working, file = 'ABG_working.csv')
+write.csv(ABGw, file = 'ABGw.csv')
+
+#expanding lab_order_id and Lab_sample_id
+
+str(ABGw24$lab_order_id)
+ABGw24$lo_id <- as.numeric(ABGw24$lab_order_id)
+
+
+format(ABGw24$lo_id, scientific = FALSE)
+
+a <- as.numeric(ABGw24$lab_order_id[1])
+dput(a)
+
+options(scipen=999)
+
+#pivoting pH values
+
+pof <- #new table with separated/pivotted pH, po2, fio2 values
+  ABGw24 %>%
+  tidyr::pivot_wider(names_from = test_lab_code,
+                     values_from = value_as_real)
+
+
+View(pof)
+
+#identifying minimum pO2 and corresponding Fio2
+
+colnames(pof)
+
+
+test <-
+  pof %>% 
+  dplyr::group_by(hospital_visit_id) %>%
+  dplyr::group_by(lab_result_id) %>%
+  min_P02 = min(pof$pO2)
+
+
+ ptest<-  pof %>% 
+  dplyr::group_by(hospital_visit_id) %>%
+    dplyr::summarize(pH_mean = mean(pH))
+
+ View(ptest)
+ 
+ pof %>%
+   dplyr::group_by(hospital_visit_id, lab_result_id) %>%
+   dplyr::summarise(no = n())
+  
+colnames(ABG_working)
+  
+
+write_csv(pof, file = 'pof.csv')
+
+p <- file.choose()
+pof <- read.csv(p)
+View(pof)
+
+
+#TODO:
+ 
+#according to lab_sample_id
+
+#*then subsect minimum pH etc
