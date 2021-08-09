@@ -1,0 +1,51 @@
+-- information on whether any of sedation/analgesics administered for drugs where identifier code available from emap googlesheets mapping:
+--  <mentioned drugs> = propofol/fentanyl/clonidine/midazolam/morphine/dexmedetomidine
+-- likely fentanyl OR morphine alone will not be classed as 'sedated' (clinically like for analgesic properties_
+
+
+-- code for retrieving non zero values for <mentioned drugs> given in FIRST 24 HOURS OF ADMISSION
+
+WITH adm24 AS
+(SELECT
+  lv.admission_time,
+(lv.admission_time
+  + INTERVAL '1 DAY') as adm_24,
+  lv.hospital_visit_id
+ FROM
+  star.location_visit lv
+),
+  sed AS
+(SELECT
+  vo.visit_observation_id,
+    vo.observation_datetime,
+    vo.unit,
+    vo.value_as_real,
+    vo.hospital_visit_id,
+    vo.visit_observation_type_id
+  FROM
+    star.visit_observation vo
+WHERE
+    vo.visit_observation_type_id IN
+   --one of sedation drugs
+  ('407505538',--propofol '331218'
+  '407505541',--fentanyl '331223'
+ '407523429',--clonidine '12351'
+ '407525535' ,--midazolam '3040101274'
+ '407551114',--morphine  '331228'
+ '410822900' --dexmedetomidine '3040101250
+  ))
+  SELECT
+  adm24.*,
+  sed.*
+  FROM
+  adm24
+  JOIN
+  sed
+  ON
+  adm24.hospital_visit_id =
+  sed.hospital_visit_id
+  WHERE
+  sed.observation_datetime BETWEEN
+  adm24.admission_time AND
+  adm24.adm_24
+;
