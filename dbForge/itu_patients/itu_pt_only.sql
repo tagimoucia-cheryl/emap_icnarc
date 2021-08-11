@@ -1,4 +1,6 @@
 --all admissions to ITU coded locations on EMAP
+--ICU locations hard coded; will need to update over time
+--accurate as of beginning of 2021
 WITH loc AS 
 (SELECT
   SPLIT_PART(loc.location_string,'^',1) as location_split,
