@@ -76,11 +76,6 @@ colnames(HRw24)
 min_HR<-
 HRw24 %>%
   dplyr::group_by(hospital_visit_id) %>%
-  dplyr::summarise(min_HR = min(value_as_real)) #table with min HR
+  dplyr::summarise(LHR = min(value_as_real), HHR = max(value_as_real) #table with min HR
 #for each specific hospital_visit(in pre-requisite ITU split locale)
 
-
-write.csv(min_HR, 'min_HR.csv')
-
-
-str(HRw24$value_as_real)
