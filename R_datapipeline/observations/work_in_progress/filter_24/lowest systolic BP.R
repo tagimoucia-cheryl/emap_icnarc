@@ -3,7 +3,7 @@
 #SETUP
 library(stringr)
 
-#Load observations file
+#Load observations file, this should be the exported SQL file containing first 24 hours of cvs/resp/temp obs
 x <- file.choose()
 day <- read.csv(x)
 
