@@ -6,16 +6,13 @@ Observational data are input into EPIC at the bedside, and thus availabilty on E
 
 Some variables have been omitted or are a very minor proportion of the UCLH population. 
 
-###
-**Temperature**
+### Temperature
 At time of writing, no qualifiers for central and peripheral temperatures in EMAP.
 
-###
-**Brainstem death**
+### Brainstem death
 Identification of brainstem death patient was omitted from variables identified, as at time of writing it was deemed to be a relatively rare clinical event in the UCLH critical care patient population.
 
-###
-**Sedation**
+### Sedation
 Sedation as a category did not exist at time of writing, so patients were identified as 'sedated' if they had non-0 values for infusions of:
 - clonidine
 - Propofol
