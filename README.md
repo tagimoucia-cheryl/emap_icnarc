@@ -11,7 +11,10 @@ The purpose of this repository is to share and store code for extracting data to
   - Code used for both the _observational_ and _laboratory_ data are provided here for review
   
 - Extracted queries were exported as **.csv** files and stored on the **B:\ transfer** drive on the UCLH Data Science Desktop
+- Extracted queries for some variables, contained data from the entire ITU stay and for other variables, were filtered for the first 24hours of ITU admission prior to extraction from the **.star** schema.
 
 **Isolating physiological variables** 
 - This was done using [R studio](https://cran.rstudio.com)
-- Example codes for isolating and merging variables are provided here for review
+- Example codes to identify relevant ICNARC physiological are provided here
+- ICNARC field names are used for the appropriate, isolated R vectors
+- Once identified these field names can then be used in the [ICNARC calculator](https://github.com/inform-health-informatics/ICNARC-calculation).
