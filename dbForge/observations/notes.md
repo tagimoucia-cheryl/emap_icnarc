@@ -1,5 +1,10 @@
 ## Notes on Observations
 
+### Notes on observations
+
+#### Temperature
+Provided in both Fahrenheit and Celsius in star schema. 
+
 ### Correlations between variables
 
 #### RR and vent status
