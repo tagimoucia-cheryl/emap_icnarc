@@ -69,3 +69,38 @@ loc.*,
   ON loc.hospital_visit_id = ABG.hospital_visit_id
   WHERE
   loc.location_split ~ '^(T03|WSCC|SINQ|MINQ|P03CV|T07CV)'
+  
+  
+  
+  
+  -- update 16/9/21; all ABG in hospital 
+  
+  SELECT
+  ls.lab_sample_id,
+  ls.sample_collection_time,
+  lo.lab_order_id,
+  lo.hospital_visit_id,
+  lr.lab_test_definition_id,
+  lr.value_as_real,
+  ltd.test_lab_code
+FROM 
+  star.lab_sample ls
+  JOIN
+  star.lab_order lo
+  ON
+  ls.lab_sample_id = lo.lab_sample_id
+  JOIN
+  star.lab_result lr
+  ON
+  lo.lab_order_id = lr.lab_order_id
+  JOIN
+  star.lab_test_definition ltd
+  ON
+  lr.lab_test_definition_id = ltd.lab_test_definition_id
+WHERE
+  lr.lab_test_definition_id IN 
+  ('142645490' -- pH
+  ,'142645535' --FIO2
+  ,'142645496' -- pO2
+  ,'142645526' -- sO2
+  );
