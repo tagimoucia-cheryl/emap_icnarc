@@ -30,13 +30,17 @@ f_nonv_rr <-
   nonv_rr %>%
   filter(!is.na(value_as_real))
 
-#then identify minimum RR from each
-min_vent <-
-  f_vent_rr %>%
-  group_by(hospital_visit_id) %>%
-  summarise(LVRR = min(value_as_real))
+#identify minimum RR from non vent
+
 min_nv <-
   f_nonv_rr %>%
   group_by(hospital_visit_id) %>%
   summarise(LNVRR = min(value_as_real))
+
+#identify min and max RR from ventilated patients
+
+m_vent <-
+  f_vent_rr %>%
+  group_by(hospital_visit_id) %>%
+  summarise(LVRR = min(value_as_real), HVRR = max(value_as_real))
 
