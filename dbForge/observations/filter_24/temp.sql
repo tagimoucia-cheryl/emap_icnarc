@@ -1,0 +1,1 @@
+-- extracts temperature for first 24hours of ITU admisison in both Fahrenheit and Celsius
