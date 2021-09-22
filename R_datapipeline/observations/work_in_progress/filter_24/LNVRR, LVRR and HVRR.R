@@ -3,10 +3,47 @@ library(tidyverse)
 x <- file.choose()#choose "vent_rr_24.csv" (or equivalent if saved differently)
 RRv <- read.csv(x)
 
+
+#identify "first admisison"
+f_at <- 
+RRv %>%
+  group_by(hospital_visit_id) %>%
+  summarise(f_at = min(admission_time))
+
+#merge first admission with pre-existing HR
+f_RRv <- 
+merge(x = RRv, y = f_at, by = "hospital_visit_id", all = TRUE)
+
+#translate admission time to POSIXlt
+f_RRv$f_at <- substr(
+ f_RRv$f_at,1,19
+)
+f_RRv$f_at <- strptime(
+f_RRv$f_at,"%d/%m/%Y %T", tz = "GMT"
+) 
+
+#new at column for admission datetime + 24hrs in POSIXlt format
+f_RRv$f_at24 <- f_RRv$f_at +
+  dhours(24)
+
+#create observation datetime column in POSIXlt format
+f_RRv$ot <- 
+  substr(f_RRv$observation_datetime,1,19)
+
+f_RRv$ot <-
+  strptime(
+   f_RRv$ot,"%d/%m/%Y %T", tz = "GMT") 
+
+#filter data frame for observations done within first 24 hours of admisison
+RRv_24 <- 
+  f_RRv %>%
+  filter(f_RRv$ot > f_RRv$f_at, f_RRv$ot < f_RRv$f_at24)
+
+
 #concatenate hospital visit id with observation_datetime to make unique observation
 #time point for specifc patient (otherwise filtering by datetime alone may refer to
 #different patient)
-uRRv <- RRv
+uRRv <- RRv_24
 uRRv$HO <-
   paste(uRRv$hospital_visit_id, uRRv$observation_datetime)
 
