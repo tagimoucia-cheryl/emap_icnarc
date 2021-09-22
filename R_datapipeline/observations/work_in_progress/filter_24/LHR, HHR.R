@@ -3,79 +3,56 @@
 library(tidyverse)
 library(lubridate)
 
-x <- file.choose()
 
-cvs_resp <- read.csv(x)
+v24 <- file.choose()#loading .csv file with first 24 hours of admission to ITU location
+vit24 <- read.csv(v24)
 
-View(cvs_resp)
+View(vit24) #shows >1 admission date in ITU locations (bed change)
+#.'. need to filter table by first admission dates
 
 #subset HR data frame 
 #LOOKUP in emap mapping: Heart rate = 8 (https://docs.google.com/spreadsheets
 #/d/1k5DqkOfUkPZnYaNRgM-GrM7OC2S4S2alIiyTC8-OqCw/edit#gid=1661666003)
-
 HR <-
-  subset(cvs_resp, id_in_application == 8)
+  subset(vit24, id_in_application == 8)
 
-View(HR)
+#identify "first admisison"
+f_at <- 
+HR %>%
+  group_by(hospital_visit_id) %>%
+  summarise(f_at = min(admission_time))
 
-write.csv(HR, file = 'HR.csv')
+#merge first admission with pre-existing HR
+f_HR <- 
+merge(x = HR, y = f_at, by = "hospital_visit_id", all = TRUE)
 
-#Loading HR.csv
-HR_file <- file.choose()
-HR <- read.csv(HR_file)
-
-HRw <- HR #create working HR df
-View(HRw)
-
-#Subselecting only first 24 hours
-
-colnames(HRw)
-
-
-HRw$at <- HRw$admission_time
-
-HRw$at <- substr(
-  HRw$admission_time,1,19
+#translate admission time to POSIXlt
+f_HR$f_at <- substr(
+  f_HR$f_at,1,19
 )
+f_HR$f_at <- strptime(
+  f_HR$f_at,"%d/%m/%Y %T", tz = "GMT"
+) 
 
-HRw$at <- strptime(
-  HRw$at, "%d/%m/%Y %T", tz = "GMT"
-) #new at column for admission datetime in POSIXlt format
+#new at column for admission datetime + 24hrs in POSIXlt format
+f_HR$f_at24 <- f_HR$f_at +
+  dhours(24)
 
-HRw$at_24 <- substr(
-  HRw$admission_time,1,19
-)
+#create observation datetime column in POSIXlt format
+f_HR$ot <- 
+  substr(f_HR$observation_datetime,1,19)
 
-HRw$at_24 <- strptime(
-  HRw$at_24, "%d/%m/%Y %T", tz = "GMT"
-)
+f_HR$ot <-
+  strptime(
+    f_HR$ot,"%d/%m/%Y %T", tz = "GMT") 
 
-HRw$at_24 <- HRw$at_24 +
-  dhours(24)#new at column for admission datetime + 24hrs in POSIXlt format
+#filter data frame for observations done within first 24 hours of admisison
+HR_24 <- 
+  f_HR%>%
+  filter(f_HR$ot > f_HR$f_at, f_HR$ot < f_HR$f_at24)
 
-
-HRw$ot <- HRw$observation_datetime
-
-HRw$ot <- substr(
-  HRw$observation_datetime,1,19
-)
-
-HRw$ot <- strptime(
-  HRw$ot, "%d/%m/%Y %T", tz = "GMT"
-) #new at column for result_last_modified datetime in POSIXlt format
-
-#filtering out non- first 24 hour admission results
-
-HRw24 <- HRw %>%
-  filter(HRw$ot > HRw$at, HRw$ot < HRw$at_24)
-
-#tibbles for desired result
-
-colnames(HRw24)
-
-min_HR<-
-HRw24 %>%
-  dplyr::group_by(hospital_visit_id) %>%
-  dplyr::summarise(LHR = min(value_as_real), HHR = max(value_as_real) #table with min HR
-#for each specific hospital_visit(in pre-requisite ITU split locale)
-
+#identify minimum and maximum HR in each hospital visit if for first 24 hours admission to ITU setting
+mhr_24 <-
+  HR_24 %>%
+  group_by(hospital_visit_id) %>%
+  summarise(LHR = min(value_as_real), HHR = max(value_as_real))
