@@ -41,8 +41,8 @@ wcc_24 <-
 
 #EXTRACT ICNARC VALUES
 #identify min and max Na per hospital visit id
-i_na <-
+i_wcc <-
   wcc_24 %>%
   group_by(hospital_visit_id) %>%
-  summarise(LNA = min(value_as_real), HNA = max(value_as_real))
+  summarise(LWBC = min(value_as_real))
 
