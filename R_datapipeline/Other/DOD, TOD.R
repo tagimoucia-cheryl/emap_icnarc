@@ -5,11 +5,11 @@ library(lubridate)
 library(chron)
 
 #import csv death detail files
-d <- file.choose()"B:/exported_star/icnarc/death.csv"
+d <- file.choose() #"B:/exported_star/icnarc/death.csv"
 rip <- read.csv(d)
 
 #import ITU patients
-i <- file.choose()"B:/exported_star/icnarc/ITU_patients.csv"
+i <- file.choose()#"B:/exported_star/icnarc/ITU_patients.csv"
 pt <- read.csv(i)
 
 #create itu patient list
